@@ -7,14 +7,13 @@ import { IAccountController } from './interfaces'
 class AccountController implements IAccountController {
   async login(req: Request, res: Response): Promise<Response> {
     try {
-      let encodedAuth = (req.headers['authorization'] ||
-        req.headers['Authorization']) as string
+      const encodedAuth = req.headers.authorization?.toString().split(' ')[1]
+      const decodedAuth =
+        encodedAuth &&
+        Buffer.from(encodedAuth, 'base64').toString('utf-8').split(':')
 
-      encodedAuth = encodedAuth && encodedAuth.split(' ')[1]
-
-      const decodedAuth = Buffer.from(encodedAuth, 'base64').toString('utf-8')
-
-      const [email, password] = decodedAuth.split(':')
+      const email = decodedAuth && decodedAuth[0]
+      const password = decodedAuth && decodedAuth[1]
 
       if (!email || !password) {
         return res.status(401).json({
@@ -24,14 +23,7 @@ class AccountController implements IAccountController {
         })
       }
 
-      const user = await repositories.user.findOne({
-        where: { email },
-        select: {
-          id: true,
-          email: true,
-          password: true,
-        },
-      })
+      const user = await repositories.user.findByEmail(email)
 
       if (!user) {
         return res.status(401).json({
@@ -75,11 +67,8 @@ class AccountController implements IAccountController {
 
   async logout(req: Request, res: Response): Promise<Response> {
     try {
-      await repositories.blacklist.create({
-        data: {
-          token: req.token as string,
-        },
-      })
+      const { token } = req
+      await repositories.blacklist.create(token as string)
 
       return res.status(200).json({ message: 'Logged out successfully' })
     } catch (error) {
