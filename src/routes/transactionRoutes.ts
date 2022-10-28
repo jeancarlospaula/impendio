@@ -6,7 +6,7 @@ const transactionRoutes = Router()
 
 transactionRoutes.post('/', validateToken, transactionController.create)
 transactionRoutes.get('/', validateToken, transactionController.find)
-transactionRoutes.get('/:id', validateToken, transactionController.findOne)
+transactionRoutes.get('/:id', validateToken, transactionController.findById)
 transactionRoutes.patch('/:id', validateToken, transactionController.update)
 transactionRoutes.delete('/:id', validateToken, transactionController.delete)
 
