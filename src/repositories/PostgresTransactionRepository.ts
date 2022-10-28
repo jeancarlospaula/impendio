@@ -4,28 +4,106 @@ import { Transaction } from '../models/schemas'
 import { ITransactionRepository } from './interfaces'
 
 class PostgresTransactionRepository implements ITransactionRepository {
-  async create(data: Prisma.TransactionCreateArgs): Promise<Transaction> {
-    return await TransactionModel.create(data)
+  async create({
+    date,
+    description,
+    value,
+    typeId,
+    userId,
+  }: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>): Promise<
+    Pick<Transaction, 'id'>
+  > {
+    return await TransactionModel.create({
+      data: {
+        date,
+        value,
+        description,
+        typeId,
+        userId,
+      },
+      select: {
+        id: true,
+      },
+    })
   }
 
-  async find(data: Prisma.TransactionFindManyArgs): Promise<Transaction[]> {
-    return await TransactionModel.findMany(data)
+  async findAll(
+    userId: number
+  ): Promise<Omit<Transaction, 'userId' | 'createdAt' | 'updatedAt'>[]> {
+    return await TransactionModel.findMany({
+      where: {
+        userId,
+      },
+      select: {
+        id: true,
+        value: true,
+        date: true,
+        description: true,
+        typeId: true,
+      },
+      orderBy: {
+        id: 'desc',
+      },
+    })
   }
 
-  async findOne(
-    data: Prisma.TransactionFindFirstArgs
-  ): Promise<Transaction | null> {
-    return await TransactionModel.findFirst(data)
+  async findById(
+    id: number,
+    userId: number
+  ): Promise<Omit<Transaction, 'userId' | 'createdAt' | 'updatedAt'> | null> {
+    return await TransactionModel.findFirst({
+      where: {
+        id,
+        userId,
+      },
+      select: {
+        id: true,
+        value: true,
+        date: true,
+        description: true,
+        typeId: true,
+      },
+    })
   }
 
-  async update(
-    data: Prisma.TransactionUpdateArgs
-  ): Promise<Transaction | null> {
-    return await TransactionModel.update(data)
+  async updateById(
+    id: number,
+    {
+      date,
+      value,
+      typeId,
+      description,
+    }: Partial<Pick<Transaction, 'value' | 'description' | 'date' | 'typeId'>>
+  ): Promise<Omit<Transaction, 'userId' | 'createdAt' | 'updatedAt'> | null> {
+    return await TransactionModel.update({
+      where: {
+        id,
+      },
+      data: {
+        value,
+        date,
+        description,
+        typeId,
+      },
+      select: {
+        id: true,
+        value: true,
+        date: true,
+        description: true,
+        typeId: true,
+      },
+    })
   }
 
-  async delete(data: Prisma.TransactionDeleteArgs): Promise<void> {
-    await TransactionModel.delete(data)
+  async delete(id: number): Promise<void> {
+    await TransactionModel.delete({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+      },
+    })
     return
   }
 }

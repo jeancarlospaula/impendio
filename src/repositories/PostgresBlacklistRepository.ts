@@ -4,14 +4,26 @@ import { Blacklist } from '../models/schemas'
 import { IBlacklistRepository } from './interfaces/IBlacklistRepository'
 
 class PostgresBlacklistRepository implements IBlacklistRepository {
-  async create(data: Prisma.BlacklistCreateArgs): Promise<Blacklist> {
-    return await BlacklistModel.create(data)
+  async create(token: string): Promise<Pick<Blacklist, 'id'>> {
+    return await BlacklistModel.create({
+      data: {
+        token,
+      },
+      select: {
+        id: true,
+      },
+    })
   }
 
-  async findOne(
-    data: Prisma.BlacklistFindFirstArgs
-  ): Promise<Blacklist | null> {
-    return await BlacklistModel.findFirst(data)
+  async findByToken(token: string): Promise<Pick<Blacklist, 'id'> | null> {
+    return await BlacklistModel.findFirst({
+      where: {
+        token,
+      },
+      select: {
+        id: true,
+      },
+    })
   }
 }
 

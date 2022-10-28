@@ -2,6 +2,6 @@ import { Prisma } from '@prisma/client'
 import { Blacklist } from '../../models/schemas'
 
 export interface IBlacklistRepository {
-  create(data: Prisma.BlacklistCreateArgs): Promise<Blacklist>
-  findOne: (data: Prisma.BlacklistFindFirstArgs) => Promise<Blacklist | null>
+  create(token: string): Promise<Pick<Blacklist, 'id'>>
+  findByToken: (token: string) => Promise<Pick<Blacklist, 'id'> | null>
 }

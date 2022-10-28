@@ -8,4 +8,9 @@ interface IRepositories {
   transaction: ITransactionRepository
 }
 
-export { IRepositories, IUserRepository, ITransactionRepository }
+export {
+  IRepositories,
+  IUserRepository,
+  ITransactionRepository,
+  IBlacklistRepository,
+}
