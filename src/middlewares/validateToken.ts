@@ -8,8 +8,7 @@ const validateToken = async (
   next: NextFunction
 ) => {
   try {
-    let token = (req.headers['Authorization'] ||
-      req.headers['authorization']) as string
+    const token = req.headers['x-access-token']
 
     if (!token) {
       return res.status(401).json({
@@ -19,11 +18,9 @@ const validateToken = async (
       })
     }
 
-    const isTokenBlacklisted = await repositories.blacklist.findOne({
-      where: {
-        token,
-      },
-    })
+    const isTokenBlacklisted = await repositories.blacklist.findByToken(
+      token as string
+    )
 
     if (isTokenBlacklisted) {
       return res.status(401).json({
@@ -39,7 +36,7 @@ const validateToken = async (
     ) as JwtPayload
 
     req.userId = userId
-    req.token = token
+    req.token = token as string
 
     next()
   } catch (error) {
@@ -47,7 +44,7 @@ const validateToken = async (
       if (error.message === 'invalid token') {
         return res.status(401).json({
           error: {
-            message: 'Valid Authorization header is required',
+            message: 'Valid x-access-token header is required',
           },
         })
       }
